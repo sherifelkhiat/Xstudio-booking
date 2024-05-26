@@ -8,9 +8,9 @@ To install the Booking Product Extension, follow these steps:
 
 1. Unzip the respective extension zip and then merge "packages/Webkul" folders into project root directory.
 2. Open the composer.json file and add the following line under the 'psr-4' section:
-"Webkul\\BookingProduct\\": "packages/Webkul/BookingProduct/src"
+"Webkul\\Xbooking\\": "packages/Webkul/Xbooking/src"
 3. In the config/app.php file, add the following line under the 'providers' section:
-Webkul\BookingProduct\Providers\BookingProductServiceProvider::class,
+Webkul\Xbooking\Providers\XbookingServiceProvider::class,
 5. Run the following commands to complete the setup:
 composer dump-autoload
 php artisan migrate
