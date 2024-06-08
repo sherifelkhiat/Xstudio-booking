@@ -4,10 +4,10 @@ namespace Webkul\Xbooking\Listeners;
 
 use Illuminate\Support\Facades\Log;
 
-class XbookingListener
+class ShowCityPrice
 {
     public function handle($event)
     {
-        echo view('xbooking::xproduct');
+        echo view('xbooking::xprice');
     }
 }

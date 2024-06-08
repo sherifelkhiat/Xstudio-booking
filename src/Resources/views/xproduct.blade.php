@@ -65,6 +65,33 @@
 
                     <x-shop::form.control-group.error control-name="booking[from]" />
                 </x-shop::form.control-group>
+
+                <!-- Select Cities -->
+                <x-shop::form.control-group class="!mb-0">
+                    <x-shop::form.control-group.label>
+                        @lang('booking::app.shop.products.view.types.booking.cities.title')
+                    </x-shop::form.control-group.label>
+
+                    <x-shop::form.control-group.control
+                        type="select"
+                        class="py-4"
+                        name="booking[city]"
+                        rules="required"
+                    >
+                        <option value="">
+                            @lang('booking::app.shop.products.view.types.booking.slots.select-slot')
+                        </option>
+
+                        <option
+                            v-for="(value, key) in cities"
+                            :value="value"
+                            v-text="key"
+                        >
+                        </option>
+                    </x-shop::form.control-group.control>
+
+                    <x-shop::form.control-group.error control-name="booking[city]" />
+                </x-shop::form.control-group>
             </div>
         </div>
     </script>
@@ -79,6 +106,7 @@
                 return {
                     workingDays: [],
                     slots: [],
+                    cities: [],
                     selectedDate: '',
                     selectedSlot: '',
                 }
@@ -86,6 +114,7 @@
 
             mounted() {
                 this.getWorkingDays();
+                this.getCities();
             },
 
             methods: {
@@ -96,6 +125,16 @@
                         })
                         .catch(error => {
                             console.error("Error fetching working days:", error);
+                        });
+                },
+
+                getCities() {
+                    this.$axios.get(`{{ route('shop.xbooking.cities', '') }}`)
+                        .then((response) => {
+                            this.cities = response.data;
+                        })
+                        .catch(error => {
+                            console.error("Error fetching Cities:", error);
                         });
                 },
 
