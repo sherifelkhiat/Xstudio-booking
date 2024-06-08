@@ -5,6 +5,8 @@ namespace Webkul\Xbooking\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use Webkul\Xbooking\Listeners\XbookingListener;
+use Webkul\Xbooking\Listeners\ShowCityPrice;
+use Webkul\Xbooking\Listeners\CheckoutListener;
 use Webkul\Xbooking\Listeners\SaveBookingDataListener;
 use Webkul\Xbooking\Contracts\Booking;
 use Webkul\Xbooking\Models\Booking as BookingModel;
@@ -29,6 +31,9 @@ class XbookingServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'xbooking');
 
         Event::listen('bagisto.shop.products.name.after', XbookingListener::class);
+        Event::listen('bagisto.shop.checkout.onepage.summary.delivery_charges.after', ShowCityPrice::class);
+        
+        Event::listen('checkout.cart.collect.totals.after', CheckoutListener::class);
 
         Event::listen('checkout.order.save.after', SaveBookingDataListener::class);
 

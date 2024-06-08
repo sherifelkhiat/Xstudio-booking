@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('booking', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('qty')->default(0)->nullable();
-            $table->string('day')->nullable();
-            $table->integer('from')->nullable();
-            $table->integer('to')->nullable();
+            $table->date('day');
+            $table->time('from', $precision = 0);
+            $table->time('to', $precision = 0);
+            $table->Integer('city_id')->unsigned()->index();
 
             $table->integer('order_item_id')->unsigned()->nullable();
 
