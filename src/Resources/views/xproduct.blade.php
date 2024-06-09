@@ -1,17 +1,19 @@
 <v-book-slots :bookingProduct="ssss" />
 
 @pushOnce('scripts')
+
     <script type="text/x-template" id="v-book-slots-template">
+    <input type="hidden" id="productDuration" value="{{ $product->duration }}">
         <div>
             <x-shop::form.control-group.label class="required">
-                {{ $title  ?? trans('booking::app.shop.products.view.types.booking.slots.book-an-appointment') }}
+                {{ $title  ?? trans('xbooking::app.shop.bookSession') }}
             </x-shop::form.control-group.label>
 
             <div class="grid grid-cols-2 gap-x-4">
                 <!-- Select Working Day -->
                 <x-shop::form.control-group class="!mb-0">
                     <x-shop::form.control-group.label>
-                        @lang('booking::app.shop.products.view.types.booking.slots.date')
+                        @lang('xbooking::app.shop.selectDate')
                     </x-shop::form.control-group.label>
 
                     <x-shop::form.control-group.control
@@ -20,10 +22,9 @@
                         name="booking[date]"
                         rules="required"
                         v-model="selectedDate"
-                        @change="getAvailableSlots"
                     >
                         <option value="">
-                            @lang('booking::app.shop.products.view.types.booking.slots.select-date')
+                            @lang('xbooking::app.shop.selectDate')
                         </option>
 
                         <option
@@ -37,49 +38,23 @@
                     <x-shop::form.control-group.error control-name="booking[date]" />
                 </x-shop::form.control-group>
 
-                <!-- Select Slots -->
-                <x-shop::form.control-group class="!mb-0">
-                    <x-shop::form.control-group.label>
-                        @lang('booking::app.shop.products.view.types.booking.slots.title')
-                    </x-shop::form.control-group.label>
-
-                    <x-shop::form.control-group.control
-                        type="select"
-                        class="py-4"
-                        name="booking[from]"
-                        rules="required"
-                        v-model="selectedSlot"
-                        is-disabled="!slots.length"
-                    >
-                        <option value="">
-                            @lang('booking::app.shop.products.view.types.booking.slots.select-slot')
-                        </option>
-
-                        <option
-                            v-for="slot in slots"
-                            :value="slot"
-                            v-text="slot"
-                        >
-                        </option>
-                    </x-shop::form.control-group.control>
-
-                    <x-shop::form.control-group.error control-name="booking[from]" />
-                </x-shop::form.control-group>
 
                 <!-- Select Cities -->
                 <x-shop::form.control-group class="!mb-0">
                     <x-shop::form.control-group.label>
-                        @lang('booking::app.shop.products.view.types.booking.cities.title')
+                        @lang('xbooking::app.shop.selectCity')
                     </x-shop::form.control-group.label>
 
                     <x-shop::form.control-group.control
                         type="select"
                         class="py-4"
                         name="booking[city]"
+                        v-model="selectedCity"
                         rules="required"
+                        @change="getAvailableSlots"
                     >
                         <option value="">
-                            @lang('booking::app.shop.products.view.types.booking.slots.select-slot')
+                            @lang('xbooking::app.shop.selectCity')
                         </option>
 
                         <option
@@ -92,7 +67,39 @@
 
                     <x-shop::form.control-group.error control-name="booking[city]" />
                 </x-shop::form.control-group>
+
+                <!-- Select Slots -->
+                <x-shop::form.control-group class="!mb-0" v-if="selectedCity!=''">
+                    <x-shop::form.control-group.label>
+                        @lang('xbooking::app.shop.selectSlot') 
+                    </x-shop::form.control-group.label>
+
+                    <x-shop::form.control-group.control
+                        type="select"
+                        class="py-4"
+                        name="booking[from]"
+                        rules="required"
+                        v-model="selectedSlot"
+                        
+                    >
+                        <option value="">
+                            @lang('xbooking::app.shop.selectSlot')
+                        </option>
+
+                        <option
+                            v-for="slot in slots"
+                            :value="slot"
+                            v-text="slot"
+                        >
+                        </option>
+                    </x-shop::form.control-group.control>
+
+                    <x-shop::form.control-group.error control-name="booking[from]" />
+                </x-shop::form.control-group>
             </div>
+            <x-shop::form.control-group.label class="required" v-if="selectedCity!=''">
+            {{ trans('xbooking::app.shop.cityExtraCost') }} @{{ extraCost }}
+            </x-shop::form.control-group.label>
         </div>
     </script>
 
@@ -109,12 +116,16 @@
                     cities: [],
                     selectedDate: '',
                     selectedSlot: '',
+                    selectedCity: '',
+                    productDuration: '',
+                    extraCost: ''
                 }
             },
 
             mounted() {
                 this.getWorkingDays();
                 this.getCities();
+                this.productDuration = document.getElementById('productDuration').value;
             },
 
             methods: {
@@ -144,7 +155,11 @@
                         return;
                     }
 
-                    this.$axios.get(`{{ route('shop.xbooking.times', '') }}/${this.selectedDate}`)
+                    const parts = this.selectedCity.split(':');
+                    this.extraCost = parts[1];
+
+                    console.log("Hii City:" + this.productDuration);
+                    this.$axios.get(`{{ route('shop.xbooking.times', '') }}/${this.selectedDate}/?city=${this.selectedCity}&productDuration=${this.productDuration}`)
                         .then((response) => {
                             this.slots = response.data;
                             this.selectedSlot = '';

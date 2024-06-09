@@ -18,11 +18,10 @@ class SaveBookingDataListener
 
     public function handle($event)
     {
-        Log::info(json_encode($event));
         foreach($event->items()->get() as $item) {
-            Log::info(json_encode($item->price));
+            
             if(isset($item['additional'])) {
-                Log::info(json_encode($this->productRepository->findOrFail($item->product_id)->duration));
+                
                 $product = $this->productRepository->findOrFail($item->product_id);
                 $productDuration = ($product)? $product->duration : 0;
                 $cityData = explode(':', data_get($item, 'additional.booking.city', 0));

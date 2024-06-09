@@ -2,8 +2,10 @@
 
 return [
     'shop'  => [
-        'products' => [
-            'book-an-appointment' => 'اختر التاريخ' 
-        ]
+        'selectDate' => "اختر التاريخ",
+        "selectCity" => "اختر المدينه",
+        "selectSlot" => "اختر الوقت",
+        "bookSession" => "احجز جلسه التصوير",
+        "cityExtraCost" => "هذه المدينه لها سعر اضافي",
     ]
 ];

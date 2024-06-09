@@ -5,6 +5,12 @@ namespace Webkul\Xbooking\Http\Controllers\Shop;
 use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Webkul\Xbooking\Models\ExceptionDay;
+use Webkul\Xbooking\Models\WorkingDay;
+use Webkul\Xbooking\Models\City;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use Webkul\Xbooking\Models\Booking;
 
 class XbookingController extends Controller
 {
@@ -22,52 +28,67 @@ class XbookingController extends Controller
 
     public function getDates()
     {
-        $dates = [
-            '2024-06-01', '2024-06-02', '2024-06-03', '2024-06-04', '2024-06-05'
-        ];
+        // $dates = [
+        //     '2024-06-01', '2024-06-02', '2024-06-03', '2024-06-04', '2024-06-05'
+        // ];
 
+        $exceptionDays = ExceptionDay::select('date')->orderBy('date')->get()->toArray();
+
+        $exceptionDaysArr = [];
+        foreach($exceptionDays as $exceptionDay){
+            $exceptionDaysArr[] =  $exceptionDay['date'];
+        }
+        Log::info(json_encode($exceptionDaysArr));
+        $days = $this->generateDays(30, $exceptionDaysArr);
+        Log::info(json_encode($days));
+        $dates = [];
+
+        foreach($days as $day){
+            $dates[] = $day['day'];
+        }
+        Log::info(json_encode($dates));
         return response()->json($dates);
     }
 
-    public function getTimes($date)
+    public function getTimes($date, Request $request)
     {
-        $times = [
-            '2024-06-01' => ['10:00', '11:00', '12:00'],
-            '2024-06-02' => ['13:00', '14:00', '15:00'],
-            '2024-06-03' => ['16:00', '17:00', '18:00'],
-            '2024-06-04' => ['10:00', '11:00', '12:00'],
-            '2024-06-05' => ['13:00', '14:00', '15:00']
-        ];
+        $daysAvailable = $this->getAvailableDays($request);
+        Log::info(json_encode($daysAvailable));
+        
+        $times = [];
+
+        foreach($daysAvailable as $day){
+            $times[$day['day']] = $this->createTimeIntervals($day['slots']); 
+        }
 
         return response()->json($times[$date] ?? []);
     }
 
     public function getCities()
     {
-        $cities = [
-            'tanta' => '1:20:20',
-            'alex' => '2:40:30',
-            'cairo' => '3:20:50'
-        ];
-
-        return response()->json($cities ?? []);
+        $cities = City::all();
+        $citiesArr = [];
+        foreach($cities as $city) {
+            $citiesArr[$city->destination_city] = "$city->id:$city->extra_cost:$city->duration";
+        }
+        return response()->json($citiesArr ?? []);
     }
 
     private function getAvailableDays(Request $request)
     {
-        $exceptionDays = Slot::select('day')->orderBy('day')->get()->toArray();
+        $exceptionDays = ExceptionDay::select('date')->orderBy('date')->get()->toArray();
 
         $exceptionDaysArr = [];
         foreach($exceptionDays as $exceptionDay){
-            $exceptionDaysArr[] =  $exceptionDay['day'];
+            $exceptionDaysArr[] =  $exceptionDay['date'];
         }
 
         $days = $this->generateDays(30, $exceptionDaysArr);
 
         // dd($days);
-
-        $city_id = $request->city_id;
-        $product_id = $request->product_id;
+        $cityData = explode(':', $request->city);
+        $cityDuraion = (isset($cityData[2]))? $cityData[2]: 0;
+        $productDuration = $request->productDuration;
 
         $daysAvailable = [];
 
@@ -76,7 +97,7 @@ class XbookingController extends Controller
 
 
 
-            $slotsForCustomers = $this->trimSlots($daySlots, $product_id, $city_id);
+            $slotsForCustomers = $this->trimSlots($daySlots, $productDuration, $cityDuraion);
 
             // dd($slotsForCustomers);
 
@@ -92,7 +113,7 @@ class XbookingController extends Controller
             $slotsForCustomers = [];
         }
 
-        return $this->responseJson(false, 200, 'Slots retrieved successfully', $daysAvailable);  
+        return $daysAvailable;
     }
 
     private function getAvailableTimeSlotsArray($day)
@@ -100,7 +121,7 @@ class XbookingController extends Controller
         $slots = [];
 
         //order bookings by from timestamp 
-        $bookings = Booking::where('day', $day['day'])->whereNotNull('order_id')->orderBy('from')->get();
+        $bookings = Booking::where('day', $day['day'])->whereNotNull('product_id')->orderBy('from')->get();
 
         if(count($bookings) > 0){
             $startAvailableTimestamp = strtotime($day['day'] .' '. $day['from'] );
@@ -138,14 +159,9 @@ class XbookingController extends Controller
         return $slots;
     }
 
-    private function trimSlots($slots, $product_id, $city_id)
+    private function trimSlots($slots, $productDuration, $cityDuration)
     {
-        
-        $product = Product::where('id', $product_id)->where('status', 1)->first();
-
-        $city = City::where('id', $city_id)->first();
-
-        $totalDuration = (int) $product->duration + (int) $city->duration;
+        $totalDuration = (int) $productDuration + (int) $cityDuration;
         $totalDuration = $totalDuration * 60;
         
         $slotsAfterTriming = [];
@@ -171,14 +187,14 @@ class XbookingController extends Controller
 
     private function generateDays($durationByDays, $exceptionDaysArr)
     {
-        $weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']; 
+        $weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']; 
 
-        $workingDays = Wday::all();
+        $workingDays = WorkingDay::all();
 
         $workingDaysArr = [];
 
         foreach($workingDays as $workingDay){
-            $workingDaysArr[] = $workingDay->day_name;
+            $workingDaysArr[] = $workingDay->days;
         }
 
         $vacations = array_diff($weekDays, $workingDaysArr);
@@ -186,7 +202,7 @@ class XbookingController extends Controller
         $workingDaysModified = [];
 
         foreach($workingDays as $workingDay){
-            $workingDaysModified[$workingDay->day_name] = 
+            $workingDaysModified[$workingDay->days] = 
             [
                     'from' => ($workingDay->from == '00:00:00')? '24:00:00' : $workingDay->from,
                     'to' => ($workingDay->to == '00:00:00')? '24:00:00' : $workingDay->to   
@@ -200,20 +216,22 @@ class XbookingController extends Controller
 
             $dayName = date('l', strtotime($date));
 
+
+
             if(!in_array($dayName, $vacations)){
                 if(in_array($date, $exceptionDaysArr)){
-                    $exceptionDay = Slot::where('day', $date)->first();
+                    $exceptionDay = ExceptionDay::where('date', $date)->first();
                     $days[] = [
                         'day' => $exceptionDay->day,
                         'from' => $exceptionDay->from,
                         'to' => $exceptionDay->to
                     ];
                 } else {
-                    if(isset($workingDaysModified[strtolower( $dayName )])){
+                    if(isset($workingDaysModified[ $dayName ])){
                         $days[] = [
                             'day' => $date ,
-                            'from' => $workingDaysModified[strtolower( $dayName )]['from'],
-                            'to' => $workingDaysModified[strtolower( $dayName )]['to']
+                            'from' => $workingDaysModified[ $dayName ]['from'],
+                            'to' => $workingDaysModified[ $dayName ]['to']
                         ];
                     }
                 }
@@ -221,5 +239,21 @@ class XbookingController extends Controller
         }
 
         return $days;
+    }
+
+    private function createTimeIntervals($slotsAfterTriming) {
+        $intervals = [];
+
+        foreach ($slotsAfterTriming as $slot) {
+            $startTimestamp = strtotime($slot['start']);
+            $endTimestamp = strtotime($slot['end']);
+            
+            while ($startTimestamp < $endTimestamp) {
+                $intervals[] = date('H:i:s', $startTimestamp);
+                $startTimestamp += 1800; // 1800 seconds = 30 minutes
+            }
+        }
+
+        return $intervals;
     }
 }
