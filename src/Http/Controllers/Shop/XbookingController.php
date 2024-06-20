@@ -60,7 +60,7 @@ class XbookingController extends Controller
         foreach($daysAvailable as $day){
             $times[$day['day']] = $this->createTimeIntervals($day['slots']); 
         }
-        Log::info(json_encode($times));
+        Log::info("Hii I am Times:" . json_encode($times));
 
         return response()->json($times[$date] ?? []);
     }
