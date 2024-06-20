@@ -250,7 +250,7 @@ class XbookingController extends Controller
             $endTimestamp = strtotime($slot['end']);
 
 
-            Log::info("Hii I am TimeStamp:" . json_encode($startTimestamp));
+            Log::info("Hii I am TimeStamp:" . json_encode(date('H:i:s', $startTimestamp)));
 
             while ($startTimestamp < $endTimestamp) {
                 $intervals[] = date('H:i:s', $startTimestamp);
