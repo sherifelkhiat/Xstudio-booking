@@ -248,7 +248,10 @@ class XbookingController extends Controller
         foreach ($slotsAfterTriming as $slot) {
             $startTimestamp = strtotime($slot['start']);
             $endTimestamp = strtotime($slot['end']);
-            
+
+
+            Log::info("Hii I am TimeStamp:" . json_encode($startTimestamp));
+
             while ($startTimestamp < $endTimestamp) {
                 $intervals[] = date('H:i:s', $startTimestamp);
                 $startTimestamp += 1800; // 1800 seconds = 30 minutes
