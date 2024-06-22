@@ -7,7 +7,7 @@
     <div class="p-4 bg-white dark:bg-gray-900 rounded box-shadow">
         <div class="flex justify-end mb-4">
             <button onclick="window.location.href='{{ route('xbooking.exception_days.create') }}'"
-                class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
                 Create New Exception Day
             </button>
         </div>

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Webkul\Xbooking\Http\Controllers\Admin\WorkingDaysController;
 use Webkul\Xbooking\Http\Controllers\Admin\XbookingController;
 use Webkul\Xbooking\Http\Controllers\Admin\CitiesController;
+use Webkul\Xbooking\Http\Controllers\Admin\BookingController;
+
 
 
 Route::group(['middleware' => ['web', 'admin'], 'prefix' => 'admin/xbooking'], function () {
@@ -37,5 +39,7 @@ Route::group(['middleware' => ['web', 'admin'], 'prefix' => 'admin/xbooking'], f
         Route::put('/{id}', 'Webkul\Xbooking\Http\Controllers\Admin\ExceptionDayController@update')->name('xbooking.exception_days.update');
         Route::delete('/{id}', 'Webkul\Xbooking\Http\Controllers\Admin\ExceptionDayController@delete')->name('xbooking.exception_days.destroy'); // Use "destroy" for consistency with Blade method
     });
+
+    Route::get('/bookings', [BookingController::class, 'index'])->name('xbooking.bookings.index');
 
 });

@@ -28,5 +28,12 @@ return [
         'route' => 'xbooking.exception_days.index',
         'sort'  => 2,
         'icon'  => 'temp-icon',
+    ],
+    [
+        'key'   => 'xbooking.bookings',
+        'name'  => 'booking',
+        'route' => 'xbooking.bookings.index',
+        'sort'  => 2,
+        'icon'  => 'temp-icon',
     ]
 ];
