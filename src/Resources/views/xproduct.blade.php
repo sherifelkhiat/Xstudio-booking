@@ -22,6 +22,7 @@
                         name="booking[date]"
                         rules="required"
                         v-model="selectedDate"
+                        @change="getAvailableSlots"
                     >
                         <option value="">
                             @lang('xbooking::app.shop.selectDate')
@@ -150,7 +151,7 @@
                 },
 
                 getAvailableSlots() {
-                    if (!this.selectedDate) {
+                    if (!this.selectedDate || !this.selectedCity) {
                         this.slots = [];
                         return;
                     }
