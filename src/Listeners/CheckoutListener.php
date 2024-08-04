@@ -10,7 +10,7 @@ class CheckoutListener
     {
     
         foreach($event->items()->get() as $item) {
-            
+            Log::info("Inside checkout listener");
             if(isset($item['additional'])) {
                 
                 $cityPrice = explode(':', data_get($item, 'additional.booking.city', 0))[1]; 

@@ -124,6 +124,8 @@ class XbookingController extends Controller
         //order bookings by from timestamp 
         $bookings = Booking::where('day', $day['day'])->whereNotNull('product_id')->orderBy('from')->get();
 
+        Log::info("The Bookings: " . json_encode($bookings));
+
         if(count($bookings) > 0){
             $startAvailableTimestamp = strtotime($day['day'] .' '. $day['from'] );
             $endAvailableTimestamp = strtotime($day['day'] .' '. $day['to'] );

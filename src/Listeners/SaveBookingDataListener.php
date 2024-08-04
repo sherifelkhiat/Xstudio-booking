@@ -18,36 +18,37 @@ class SaveBookingDataListener
 
     public function handle($event)
     {
-        foreach($event->items()->get() as $item) {
+        Log::info("Inside The booking saving listener");
+        // foreach($event->items()->get() as $item) {
             
-            if(isset($item['additional'])) {
-                
-                $product = $this->productRepository->findOrFail($item->product_id);
-                $productDuration = ($product)? $product->duration : 0;
-                $cityData = explode(':', data_get($item, 'additional.booking.city', 0));
-                $cityId = (isset($cityData[0]))? $cityData[0]: null;
+        //     if(isset($item['additional'])) {
+        //         Log::info("Inside The booking saving listener 1");
+        //         $product = $this->productRepository->findOrFail($item->product_id);
+        //         $productDuration = ($product)? $product->duration : 0;
+        //         $cityData = explode(':', data_get($item, 'additional.booking.city', 0));
+        //         $cityId = (isset($cityData[0]))? $cityData[0]: null;
                  
-                $cityDuration = (isset($cityData[2]))? $cityData[2]: 0;
-                $stringDateFrom = data_get($item, 'additional.booking.from', 0);
-                $stringDate = data_get($item, 'additional.booking.date', 0);
+        //         $cityDuration = (isset($cityData[2]))? $cityData[2]: 0;
+        //         $stringDateFrom = data_get($item, 'additional.booking.from', 0);
+        //         $stringDate = data_get($item, 'additional.booking.date', 0);
 
-                $totalDuration = (int) $cityDuration + (int) $productDuration;
-                $totalDuration = $totalDuration * 60;
+        //         $totalDuration = (int) $cityDuration + (int) $productDuration;
+        //         $totalDuration = $totalDuration * 60;
 
-                $startAvailableTimestamp = strtotime($stringDate .' '. $stringDateFrom );
+        //         $startAvailableTimestamp = strtotime($stringDate .' '. $stringDateFrom );
 
-                $to = $startAvailableTimestamp + $totalDuration;
+        //         $to = $startAvailableTimestamp + $totalDuration;
 
-                $to = date("H:i:s", $to);
-
-                $this->bookingRepository->create([
-                    'day' => $stringDate,
-                    'from' => data_get($item, 'additional.booking.from', 0),
-                    'to' => $to,
-                    'city' => $cityId,
-                    'product_id' => $item->product_id
-                ]);   
-            }
-        }
+        //         $to = date("H:i:s", $to);
+        //         Log::info("saving booking");
+        //         $this->bookingRepository->create([
+        //             'day' => $stringDate,
+        //             'from' => data_get($item, 'additional.booking.from', 0),
+        //             'to' => $to,
+        //             'city' => $cityId,
+        //             'product_id' => $item->product_id
+        //         ]);   
+        //     }
+        // }
     }
 }
