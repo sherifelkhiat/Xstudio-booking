@@ -34,7 +34,7 @@ class XbookingServiceProvider extends ServiceProvider
         $this->app['events']->listen('bagisto.shop.products.name.after', function ($viewRenderEventManager) {
             $viewRenderEventManager->addTemplate('xbooking::xproduct');
         });
-        Event::listen('bagisto.shop.checkout.onepage.summary.delivery_charges.after', ShowCityPrice::class);
+        // Event::listen('bagisto.shop.checkout.onepage.summary.delivery_charges.after', ShowCityPrice::class);
         
         Event::listen('checkout.cart.collect.totals.after', CheckoutListener::class);
 
