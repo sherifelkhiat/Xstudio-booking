@@ -11,8 +11,8 @@ class CheckoutListener
     
         foreach($event->items()->get() as $item) {
             Log::info("Inside checkout listener");
-            if(isset($item['additional'])) {
-                
+            if(isset($item['additional']) && data_get($item, 'additional.booking.city', 0)) {
+                Log::info("Inside checkout listener:" . data_get($item, 'additional.booking.city', 0));
                 $cityPrice = explode(':', data_get($item, 'additional.booking.city', 0))[1]; 
                 $event->grand_total = $item->total + $cityPrice;
                 $event->sub_total = $item->sub_total + $cityPrice; 

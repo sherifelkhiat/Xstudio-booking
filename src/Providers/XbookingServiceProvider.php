@@ -43,6 +43,8 @@ class XbookingServiceProvider extends ServiceProvider
         Event::listen('bagisto.admin.layout.head', function($viewRenderEventManager) {
             $viewRenderEventManager->addTemplate('xbooking::admin.layouts.style');
         });
+
+        $this->app['view']->prependNamespace('shop', __DIR__ . '/../Resources/views');
     }
 
     /**
@@ -70,6 +72,10 @@ class XbookingServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom(
             dirname(__DIR__) . '/Config/acl.php', 'acl'
+        );
+        
+        $this->mergeConfigFrom(
+            dirname(__DIR__) . '/Config/product_types.php', 'product_types'
         );
     }
 }

@@ -1,3 +1,5 @@
+@if($product->type == 'xbooking')
+
 <v-book-slots :bookingProduct="ssss" />
 
 @pushOnce('scripts')
@@ -8,8 +10,7 @@
             <x-shop::form.control-group.label class="required">
                 {{ $title  ?? trans('xbooking::app.shop.bookSession') }}
             </x-shop::form.control-group.label>
-
-            <div class="grid grid-cols-2 gap-x-4">
+            <div class="grid grid-cols-1 gap-x-4">
                 <!-- Select Working Day -->
                 <x-shop::form.control-group class="!mb-0">
                     <x-shop::form.control-group.label>
@@ -173,3 +174,4 @@
         });
     </script>
 @endpushOnce
+@endif
