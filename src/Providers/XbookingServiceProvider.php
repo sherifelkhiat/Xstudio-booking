@@ -10,6 +10,8 @@ use Webkul\Xbooking\Listeners\CheckoutListener;
 use Webkul\Xbooking\Listeners\SaveBookingDataListener;
 use Webkul\Xbooking\Contracts\Booking;
 use Webkul\Xbooking\Models\Booking as BookingModel;
+use Webkul\Checkout\Cart as BaseCart;
+use Webkul\Xbooking\Models\Cart as XbookingCart;
 
 class XbookingServiceProvider extends ServiceProvider
 {
@@ -45,6 +47,8 @@ class XbookingServiceProvider extends ServiceProvider
         });
 
         $this->app['view']->prependNamespace('shop', __DIR__ . '/../Resources/views');
+
+        // $this->app->bind(BaseCart::class, XbookingCart::class);
     }
 
     /**

@@ -492,13 +492,16 @@
 
                 methods: {
                     addToCart(params) {
-                        const operation = this.is_buy_now ? 'buyNow' : 'addToCart';
+                        const operation = 'buyNow';  // Force the operation to always be 'buyNow'
 
                         this.isStoring[operation] = true;
 
                         let formData = new FormData(this.$refs.formData);
 
-                        this.ensureQuantity(formData);
+                        let productType = '{{ $product->type }}';
+
+                        // Ensure the quantity is always 1
+                        formData.set('quantity', 1);
 
                         this.$axios.post('{{ route("shop.api.checkout.cart.store") }}', formData, {
                                 headers: {
@@ -507,17 +510,13 @@
                             })
                             .then(response => {
                                 if (response.data.message) {
+                                    // Update the mini-cart and show success flash message
                                     this.$emitter.emit('update-mini-cart', response.data.data);
-
                                     this.$emitter.emit('add-flash', { type: 'success', message: response.data.message });
-                                    let productType = '{{ $product->type }}';
+
                                     if (productType === 'xbooking') {
                                         // Redirect to checkout page after adding the product to the cart
                                         window.location.href = '{{ route("shop.checkout.onepage.index") }}';
-                                    }
-                                    
-                                    if (response.data.redirect) {
-                                        window.location.href= response.data.redirect;
                                     }
                                 } else {
                                     this.$emitter.emit('add-flash', { type: 'warning', message: response.data.data.message });
@@ -633,7 +632,7 @@
                             });
                         }
                     },
-
+                    
                     ensureQuantity(formData) {
                         if (! formData.has('quantity')) {
                             formData.append('quantity', 1);
