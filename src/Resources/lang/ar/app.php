@@ -7,5 +7,6 @@ return [
         "selectSlot" => "اختر الوقت",
         "bookSession" => "احجز جلسه التصوير",
         "cityExtraCost" => "هذه المدينه لها سعر اضافي",
+        "pay_with_deposite" => "Pay with deposit"
     ]
 ];
